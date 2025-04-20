@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useState, useRef, useEffect} from "react";
 import IngredientsList from "./IngredientsList.jsx";
 import { getRecipe } from "../ai.js";
 import AIRecipe from "./AIRecipe.jsx";
@@ -6,11 +6,17 @@ import AIRecipe from "./AIRecipe.jsx";
 export default function Main() {
     const [ingredients, setIngredients] = useState([])
     const [recipe, setRecipe] = useState("")
+    const recipeSection = useRef(null);
+
+    useEffect(() => {
+        if (recipe && recipeSection.current) {
+            recipeSection.current.scrollIntoView({behavior: "smooth"});
+        }
+    }, [recipe] )
 
     async function getRecipeFromAI(){
         const generatedRecipe = await getRecipe(ingredients)
         setRecipe(generatedRecipe)
-        console.log(generatedRecipe)
     }
 
     const handleSubmit = (formData) => {
@@ -27,7 +33,7 @@ export default function Main() {
             </form>
             <p className="note"><i>Note: Enter an ingredient first.</i></p>
             {ingredients.length > 0 &&
-                <IngredientsList ingredients={ingredients} getRecipe={getRecipeFromAI}/>
+                <IngredientsList ingredients={ingredients} getRecipe={getRecipeFromAI} ref={recipeSection} />
             }
             {recipe && <AIRecipe recipe={recipe} />}
         </main>
