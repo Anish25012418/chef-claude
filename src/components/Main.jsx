@@ -1,23 +1,35 @@
-import { useState } from "react";
+import {useState} from "react";
+import IngredientsList from "./IngredientsList.jsx";
+import { getRecipe } from "../ai.js";
+import AIRecipe from "./AIRecipe.jsx";
 
-export default function Main(){
+export default function Main() {
     const [ingredients, setIngredients] = useState([])
-    const handleSubmit = (event) => {
-        event.preventDefault()
-        const formData = new FormData(event.currentTarget);
-        const ingredient = formData.get("ingredient");
-        setIngredients(prevIngredients => [...prevIngredients, ingredient]);
+    const [recipe, setRecipe] = useState("")
+
+    async function getRecipeFromAI(){
+        const generatedRecipe = await getRecipe(ingredients)
+        setRecipe(generatedRecipe)
+        console.log(generatedRecipe)
     }
-    const ingredientsList = ingredients.map(ingredient => (<li key={ingredient}>{ingredient}</li>));
+
+    const handleSubmit = (formData) => {
+        const newIngredient = formData.get("ingredient");
+        if (newIngredient !== "" && !ingredients.includes(newIngredient)) {
+            setIngredients(prevIngredients => [...prevIngredients, newIngredient]);
+        }
+    }
     return (
         <main>
-            <form className="add-ingredient-form" onSubmit={handleSubmit}>
+            <form className="add-ingredient-form" action={handleSubmit}>
                 <input type='text' name="ingredient" placeholder="E.g Chicken" aria-label="Add ingredient"/>
                 <button type={"submit"}>+ Add ingredient</button>
             </form>
-            <ul>
-                {ingredientsList}
-            </ul>
+            <p className="note"><i>Note: Enter an ingredient first.</i></p>
+            {ingredients.length > 0 &&
+                <IngredientsList ingredients={ingredients} getRecipe={getRecipeFromAI}/>
+            }
+            {recipe && <AIRecipe recipe={recipe} />}
         </main>
     )
 }

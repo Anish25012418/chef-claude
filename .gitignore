@@ -33,3 +33,6 @@ coverage/
 # OS files
 Thumbs.db
 Desktop.ini
+
+# Enviroment Variables
+.env
